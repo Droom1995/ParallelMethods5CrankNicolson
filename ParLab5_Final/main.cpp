@@ -1,12 +1,13 @@
-# include <cstdlib>
-# include <iostream>
-# include <fstream>
-# include <cmath>
-# include <ctime>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <ctime>
+#include <mpi.h>
 
 using namespace std;
 
-#include "mpi.h"
+
 
 int main(int argc, char *argv[]);
 double boundary_condition(double x, double time);
@@ -14,6 +15,10 @@ double initial_condition(double x, double time);
 double rhs(double x, double time);
 void timestamp();
 void update(int rank, int p);
+double exact_solution(double x, double time);
+
+const double const_A = 1 / 2.,const_a = 1;
+
 
 int main(int argc, char *argv[])
 {
@@ -327,21 +332,22 @@ double initial_condition(double x, double time)
 
 	return value;
 }
+
 double rhs(double x, double time)
 {
 	double value;
 
-	value = 0.0;
+	value = exact_solution(x,time);
 
 	return value;
 }
 
 void timestamp()
 {
-# define TIME_SIZE 40
+#define TIME_SIZE 40
 
 	static char time_buffer[TIME_SIZE];
-	struct std::tm *tm_ptr = 0;
+	struct std::tm *tm_ptr = new std::tm();
 	size_t len;
 	std::time_t now;
 
@@ -353,5 +359,10 @@ void timestamp()
 	std::cout << time_buffer << "\n";
 
 	return;
-# undef TIME_SIZE
+#undef TIME_SIZE
+}
+
+double exact_solution(double x,double time)
+{
+	return pow(1 + const_A*exp(1 / 2.*sqrt(2.)*x + 1 / 2.*(2. * const_a - 1)*time), -1.);
 }
